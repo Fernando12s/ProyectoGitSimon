@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <head>
+        <meta charset="utf-8">
+        <title>Juego de Simon Dice</title>
+        <meta name="description" content="Juego de repetir la secuencia de colores.">
+        <meta name="document" content="Juego del Simon Dice">
+        <style>
+            h1{
+                text-align: center;
+            }
+    
+            #salida{
+                font-size: 1.5rem;
+                text-align: center;
+            }
+    
+            #aparato{
+                display: flex;
+                flex-wrap: wrap;
+                width: 400px;
+                margin: 0 auto;
+            }
+    
+            .color{
+                width: 50%;
+                height: 200px;
+            }
+    
+            #verde{
+                border-radius: 100% 0 0 0;
+                background: #049E03;
+            }
+    
+            #rojo{
+                border-radius: 0 100% 0 0;
+                background: #AE0404;
+            }
+    
+            #amarillo{
+                border-radius: 0 0 0 100%;
+                background: #CAC902;
+            }
+    
+            #azul{
+                border-radius: 0 0 100% 0;
+                background: #0404A6;
+            }
+    
+            #empezar{
+                display: block;
+                margin: 2rem auto;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <h1>Juego de repetir la secuencia de colores</h1>
+        <p id="salida">NIVEL 1</p>  
+        <div id="aparato">
+            <div id="verde" class="color"></div>
+            <div id="rojo" class="color"></div>
+            <div id="amarillo" class="color"></div>
+            <div id="azul" class="color"></div>
+        </div>
+        <button id="empezar">EMPEZAR</button>
+    
+        <script>
+                
+            var pulsVerde = document.querySelector('#verde'),
+                pulsRojo = document.querySelector('#rojo'),
+                pulsAmarillo = document.querySelector('#amarillo'),
+                pulsAzul = document.querySelector('#azul'),
+                aparato = document.querySelector('#aparato'),
+                empezar = document.querySelector('#empezar'),
+                salida = document.querySelector('#salida'),
+    
+                
+                verdeApagado = 'background: #049E03',
+                verdeEncendido = 'background: #4EFE4E; transform: scale(1.05);',
+                rojoApagado = 'background: #AE0404',
+                rojoEncendido = 'background: #FD2D2D; transform: scale(1.05);',
+                amarilloApagado = 'background: #CAC902',
+                amarilloEncendido = 'background: #FDFD13; transform: scale(1.05);',
+                azulApagado = 'background: #0404A6',
+                azulEncendido = 'background: #4A4AFD; transform: scale(1.05);',
+    
+                nivel,          
+                secuencia,      
+                indSec;         
+        
+             
+            
+            empezar.addEventListener("click", comienzaPartida);
+    
+    
+            function comienzaPartida(){
+                empezar.style.cssText = 'display: none;';          
+    
+                reseteaAparato();
+                aniadeColorSecuencia();
+                reproduceSecuencia();
+    
+                function reseteaAparato(){
+                    nivel = 1;
+                    secuencia = []; // amarillo
+                    indSec = 0;
+    
+                    pulsVerde.style.cssText = verdeApagado;
+                    pulsRojo.style.cssText = rojoApagado;
+                    pulsAmarillo.style.cssText = amarilloApagado;
+                    pulsAzul.style.cssText = azulApagado;
+    
+                    salida.innerHTML = 'NIVEL ' + nivel;
+                }
+    
+                function aniadeColorSecuencia(){
+                    var colores = ['verde', 'rojo', 'amarillo', 'azul'];
+    
+                    secuencia.push( colores[numAleat(0,3)] );   
+                }
+    
+    
+                function reproduceSecuencia(){    
+                    if(indSec < secuencia.length){     
+                        enciendeColor();
+                    }
+                    else{                               
+                        indSec = 0;
+                        aparato.addEventListener('click', compruebaPulsacion);
+                    }
+    
+                    function enciendeColor(){
+                        switch(secuencia[indSec]){
+                            case 'verde':
+                                pulsVerde.style.cssText = verdeEncendido;
+                                break;
+                            case 'rojo':
+                                pulsRojo.style.cssText = rojoEncendido;
+                                break;
+                            case 'amarillo':
+                                pulsAmarillo.style.cssText = amarilloEncendido;
+                                break;
+                            case 'azul':
+                                pulsAzul.style.cssText = azulEncendido;
+                                break;
+                        }
+    
+                        setTimeout(apagaColor, 700);
+                    }
+    
+                    function apagaColor(){
+                        switch(secuencia[indSec]){
+                            case 'verde':
+                                pulsVerde.style.cssText = verdeApagado;
+                                break;
+                            case 'rojo':
+                                pulsRojo.style.cssText = rojoApagado;
+                                break;
+                            case 'amarillo':
+                                pulsAmarillo.style.cssText = amarilloApagado;
+                                break;
+                            case 'azul':
+                                pulsAzul.style.cssText = azulApagado;
+                                break;
+                        }
+    
+                        indSec++;
+                        setTimeout(reproduceSecuencia, 150);
+                    }
+    
+                    function compruebaPulsacion(ev){
+                        var pulsador = ev.target;
+    
+                        if(pulsador.id != 'aparato'){
+                            if(pulsador.id == secuencia[indSec]){     
+                                enciendePulsador(pulsador.id);
+                            }
+                            else{                                      
+                                pulsVerde.style.cssText = rojoEncendido;
+                                pulsRojo.style.cssText = rojoEncendido;
+                                pulsAmarillo.style.cssText = rojoEncendido;
+                                pulsAzul.style.cssText = rojoEncendido;
+                                salida.innerHTML = 'HAS PERDIDO.\n\nHas llegado al nivel ' + nivel + '.\n\nHaz clic en EMPEZAR para volver a jugar';
+                                aparato.removeEventListener('click', compruebaPulsacion);
+                                empezar.style.cssText = 'display: block;';          
+                            }
+                        }
+                        
+    
+                        function enciendePulsador(pulsador){
+                            switch(pulsador){
+                                case 'verde':
+                                    pulsVerde.style.cssText = verdeEncendido;
+                                    break;
+                                case 'rojo':
+                                    pulsRojo.style.cssText = rojoEncendido;
+                                    break;
+                                case 'amarillo':
+                                    pulsAmarillo.style.cssText = amarilloEncendido;
+                                    break;
+                                case 'azul':
+                                    pulsAzul.style.cssText = azulEncendido;
+                                    break;
+                            }
+    
+                            setTimeout(apagaPulsador, 150, pulsador);
+                        }
+    
+                        function apagaPulsador(pulsador){
+                            switch(pulsador){
+                                case 'verde':
+                                    pulsVerde.style.cssText = verdeApagado;
+                                    break;
+                                case 'rojo':
+                                    pulsRojo.style.cssText = rojoApagado;
+                                    break;
+                                case 'amarillo':
+                                    pulsAmarillo.style.cssText = amarilloApagado;
+                                    break;
+                                case 'azul':
+                                    pulsAzul.style.cssText = azulApagado;
+                                    break;
+                            }
+    
+                            indSec++;                                   
+                            if(indSec == secuencia.length){            
+                                nivel++;                              
+                                salida.innerHTML = 'NIVEL ' + nivel;
+                                aniadeColorSecuencia();               
+                                indSec = 0;                            
+                                aparato.removeEventListener('click', compruebaPulsacion);   
+                                setTimeout(reproduceSecuencia, 1000);  
+                            }
+
+                            
+                        }
+                    }
+                   
+                  
+                }
+    
+    
+                function numAleat(limInf, limSup){
+                    return limInf + Math.floor( Math.random() * (limSup - limInf + 1) );
+                }
+               
+            }
+        </script>
+</body>
+</html>
